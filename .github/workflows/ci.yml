@@ -30,5 +30,31 @@ jobs:
       - name: Run lint
         run: pnpm lint
 
+      - name: Run typecheck
+        run: pnpm typecheck
+
       - name: Run tests
         run: pnpm test
+
+      - name: Build
+        run: pnpm build
+
+  pdf-integration:
+    name: PDF integration
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v5
+      - name: Set up pnpm
+        uses: pnpm/action-setup@v4
+      - name: Set up Node.js
+        uses: actions/setup-node@v5
+        with:
+          node-version: 24
+          cache: pnpm
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+      - name: Install pdflatex
+        run: sudo apt-get update && sudo apt-get install -y --no-install-recommends texlive-latex-base
+      - name: Run PDF integration test
+        run: pnpm test -- tests/pdf-integration.test.ts
