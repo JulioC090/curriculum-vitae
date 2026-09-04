@@ -1,0 +1,14 @@
+nodeLinker: hoisted
+
+# Verify the local store and reject dependency graphs with peer problems.
+verifyStoreIntegrity: true
+strictPeerDependencies: true
+
+# Give newly published packages time to be reviewed before resolution.
+minimumReleaseAge: 10080
+
+# Dependency lifecycle scripts must be explicitly allowlisted in package.json.
+strictDepBuilds: true
+
+allowBuilds:
+  esbuild: true
