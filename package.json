@@ -39,6 +39,7 @@
   },
   "packageManager": "pnpm@11.25.0",
   "dependencies": {
+    "commander": "^15.0.0",
     "handlebars": "^4.7.9",
     "zod": "^4.5.1"
   }
