@@ -1,0 +1,15 @@
+languages:
+  - TypeScript
+  - JavaScript
+  - Python
+  - SQL
+tools:
+  - Node.js
+  - React
+  - PostgreSQL
+  - Docker
+  - Git
+practices:
+  - Automated testing
+  - Code review
+  - Continuous delivery

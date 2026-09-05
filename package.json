@@ -41,6 +41,7 @@
   "dependencies": {
     "commander": "^15.0.0",
     "handlebars": "^4.7.9",
+    "yaml": "^2.9.0",
     "zod": "^4.5.1"
   }
 }

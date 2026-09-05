@@ -1,0 +1,11 @@
+id: project-resume-builder
+name: Open Resume Builder
+description: Created a command-line tool that turns structured resume data into PDFs.
+url: https://github.com/example/open-resume-builder
+achievements:
+  - id: separated-content-rendering
+    claim: Designed the input contract to keep content separate from document rendering.
+technologies:
+  - TypeScript
+  - Node.js
+  - LaTeX

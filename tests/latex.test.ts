@@ -22,7 +22,7 @@ test('generates a document and omits empty sections', () => {
   expect(latex).toContain('\\end{document}');
 });
 
-test('does not add a line break after project bullets', () => {
+test('renders project descriptions and technologies', () => {
   const latex = new BuiltInLatexGenerator().generate({
     personal: { name: 'Jane Doe', email: 'jane@example.com' },
     experience: [],
@@ -30,14 +30,18 @@ test('does not add a line break after project bullets', () => {
     skills: [],
     projects: [
       {
+        id: 'project-resume-builder',
         name: 'Resume Builder',
-        description: ['Generated PDF resumes'],
+        description: 'Generated PDF resumes',
+        achievements: [],
+        period: undefined,
+        order: undefined,
         url: undefined,
         technologies: ['TypeScript'],
       },
     ],
     certifications: [],
   });
-  expect(latex).toContain('\\end{itemize}\n\\emph{Technologies:}');
-  expect(latex).not.toContain('\\end{itemize}\\\\');
+  expect(latex).toContain('Generated PDF resumes\\\\');
+  expect(latex).toContain('\\emph{Technologies:} TypeScript');
 });

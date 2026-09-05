@@ -36,11 +36,11 @@ src/
 
 The responsibilities are:
 
-- `core`: application workflows and port contracts. It contains no JSON,
+- `core`: application workflows and port contracts. It contains no YAML,
   filesystem, LaTeX, or process-execution details.
 - `resume/domain`: canonical internal resume types and domain-level values.
-- `resume/input`: versioned external JSON contract, Zod validation, and the
-  mapper from input data to domain data.
+- `resume/input`: versioned external YAML directory contract, filesystem
+  aggregation, Zod validation, and the mapper from input data to domain data.
 - `generator/latex`: the infrastructure implementation of the LaTeX generator
   port. It owns the built-in template and LaTeX escaping.
 - `render/pdf`: the infrastructure implementation of the PDF renderer port.
@@ -61,78 +61,38 @@ LaTeX, writes the `.tex` file, renders the PDF, and returns both output paths.
 
 ## External Input Contract
 
-Version 1 accepts JSON with a required root `schemaVersion` of `1`:
+Version 1 reads a directory with a required `profile.yaml` containing
+`schemaVersion: 1`. Each item is an independent YAML file:
 
-```json
-{
-  "schemaVersion": 1,
-  "personal": {
-    "name": "Jane Doe",
-    "email": "jane@example.com",
-    "phone": "+1 555 0100",
-    "location": "City, Country",
-    "website": "https://example.com",
-    "summary": "Software engineer focused on reliable systems."
-  },
-  "experience": [
-    {
-      "role": "Senior Engineer",
-      "company": "Example Inc.",
-      "startDate": { "year": 2022, "month": 1 },
-      "endDate": "present",
-      "description": ["Built and operated a production platform."]
-    }
-  ],
-  "education": [
-    {
-      "degree": "BSc Computer Science",
-      "institution": "Example University",
-      "startDate": { "year": 2016 },
-      "endDate": { "year": 2020 }
-    }
-  ],
-  "skills": [
-    {
-      "category": "Languages",
-      "items": ["TypeScript", "Go"]
-    }
-  ],
-  "projects": [
-    {
-      "name": "Resume Generator",
-      "description": ["Generates reproducible resume PDFs."],
-      "url": "https://example.com/project",
-      "technologies": ["TypeScript"]
-    }
-  ],
-  "certifications": [
-    {
-      "name": "Example Certification",
-      "issuer": "Example Org",
-      "date": { "year": 2024 },
-      "url": "https://example.com/certificate",
-      "credentialId": "ABC-123"
-    }
-  ]
-}
+```text
+data/
+  profile.yaml
+  skills.yaml
+  experience/exp-company.yaml
+  education/edu-university.yaml
+  projects/project-platform.yaml
+  certifications/cert-cloud.yaml
 ```
 
-The required fields are `personal.name` and `personal.email`. Optional arrays
-may be absent or empty. Empty sections are omitted from the generated document.
-Experience and project descriptions are arrays of plain-text bullet strings.
-Dates use `{ year, month? }`; an experience end date may additionally be the
-distinct value `"present"`.
+`profile.yaml` requires `name` and `email`. Section directories and
+`skills.yaml` may be absent. Item IDs and achievement IDs are globally unique;
+an item's filename must exactly match its ID. Dates use quoted `YYYY-MM`
+strings, with `present` allowed for ongoing periods. Projects and
+certifications may define an integer `order`; otherwise entries sort
+deterministically by date and ID.
 
-Zod validates the external contract. The mapper creates separate domain types;
-Zod schemas are not used as the domain model. Email and URL fields use basic
-Zod format validation. Raw LaTeX is not accepted.
+YAML anchors, aliases, custom tags, unknown fields, nested section directories,
+and malformed files are rejected. Zod validates the external contract. The
+mapper creates separate domain types; Zod schemas are not used as the domain
+model. Email and URL fields use basic Zod format validation. Raw LaTeX is not
+accepted.
 
 ## CLI Contract
 
 The primary command is:
 
 ```text
-curriculum-vitae generate --input resume.json --output resume.pdf
+curriculum-vitae generate --output resume.pdf
 ```
 
 The command also supports `--help`, `--version`, and a diagnostic option for
@@ -146,8 +106,8 @@ non-zero, category-specific exit code.
 
 ## LaTeX and PDF Rendering
 
-The first release has one deterministic built-in template and no runtime
-template customization. User-controlled text is escaped for LaTeX. The
+The default release has one deterministic built-in template, with optional
+runtime template customization. User-controlled text is escaped for LaTeX. The
 application never accepts raw LaTeX.
 
 The PDF renderer invokes `pdflatex` directly with an argument array, never via
@@ -189,7 +149,7 @@ the command implementation is added.
 The test suite includes:
 
 - Unit tests for Zod validation and input-to-domain mapping.
-- Unit tests for LaTeX escaping and template generation.
+  - Unit tests for LaTeX escaping, template generation, and item rendering.
 - Core workflow tests with mocked ports.
 - CLI tests with mocked dependencies and exit-code assertions.
 - A real integration test that generates a fixture resume and invokes

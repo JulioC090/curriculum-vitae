@@ -1,0 +1,14 @@
+id: exp-produto-aberto
+company: Produto Aberto
+role: Software Engineer
+period:
+  start: '2019-01'
+  end: '2022-02'
+achievements:
+  - id: full-stack-features
+    claim: Built full-stack features with TypeScript and PostgreSQL.
+  - id: engineer-mentoring
+    claim: Mentored junior engineers and contributed to the team's technical guidelines.
+technologies:
+  - TypeScript
+  - PostgreSQL

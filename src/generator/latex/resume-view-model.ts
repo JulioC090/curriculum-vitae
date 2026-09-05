@@ -15,25 +15,32 @@ export interface ResumeViewModel {
     company: string;
     startDate: string;
     endDate: string;
-    description: string[];
+    achievements: string[];
+    technologies: string[];
   }>;
   education: Array<{
     degree: string;
     institution: string;
     startDate: string;
     endDate: string;
+    field: string;
+    achievements: string[];
   }>;
   skills: Array<{ category: string; items: string[] }>;
   projects: Array<{
     name: string;
-    description: string[];
+    description: string;
+    startDate: string;
+    endDate: string;
     url: string;
+    achievements: string[];
     technologies: string[];
   }>;
   certifications: Array<{
     name: string;
     issuer: string;
     date: string;
+    expires: string;
     url: string;
     credentialId: string;
   }>;
@@ -61,15 +68,22 @@ export function toResumeViewModel(resume: Resume): ResumeViewModel {
     experience: resume.experience.map((item) => ({
       role: text(item.role),
       company: text(item.company),
-      startDate: date(item.startDate),
-      endDate: date(item.endDate),
-      description: item.description.map(text),
+      startDate: date(item.period.start),
+      endDate: date(item.period.end),
+      achievements: item.achievements.map((achievement) =>
+        text(achievement.claim),
+      ),
+      technologies: item.technologies.map(text),
     })),
     education: resume.education.map((item) => ({
       degree: text(item.degree),
       institution: text(item.institution),
-      startDate: date(item.startDate),
-      endDate: date(item.endDate),
+      startDate: date(item.period.start),
+      endDate: date(item.period.end),
+      field: text(item.field),
+      achievements: item.achievements.map((achievement) =>
+        text(achievement.claim),
+      ),
     })),
     skills: resume.skills.map((item) => ({
       category: text(item.category),
@@ -77,14 +91,20 @@ export function toResumeViewModel(resume: Resume): ResumeViewModel {
     })),
     projects: resume.projects.map((item) => ({
       name: text(item.name),
-      description: item.description.map(text),
+      description: text(item.description),
+      startDate: date(item.period?.start),
+      endDate: date(item.period?.end),
       url: text(item.url),
+      achievements: item.achievements.map((achievement) =>
+        text(achievement.claim),
+      ),
       technologies: item.technologies.map(text),
     })),
     certifications: resume.certifications.map((item) => ({
       name: text(item.name),
       issuer: text(item.issuer),
-      date: date(item.date),
+      date: date(item.issued),
+      expires: date(item.expires),
       url: text(item.url),
       credentialId: text(item.credentialId),
     })),

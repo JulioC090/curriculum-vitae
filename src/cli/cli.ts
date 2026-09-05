@@ -41,7 +41,7 @@ export async function runCli(
   program
     .command('generate')
     .description('Generate a PDF from resume data')
-    .requiredOption('--input <path>', 'Resume JSON input path')
+    .option('--input <path>', 'Resume data directory', './data')
     .requiredOption('--output <path>', 'PDF output path')
     .option('--template <name|path>', 'Template name or .tex path')
     .option('--force', 'Overwrite existing outputs')
@@ -55,7 +55,7 @@ export async function runCli(
         keepLog?: boolean;
       }) => {
         if (extname(options.output) !== '.pdf') {
-          stderr('Generate requires --input and a .pdf --output path.');
+          stderr('Generate requires a .pdf --output path.');
           exitCode = exitCodes.invalidInput;
           return;
         }

@@ -1,0 +1,14 @@
+id: exp-nuvem-digital
+company: Nuvem Digital
+role: Senior Software Engineer
+period:
+  start: '2022-03'
+  end: present
+achievements:
+  - id: customer-platform
+    claim: Led the development of services used by more than 100,000 customers.
+  - id: deployment-reliability
+    claim: Improved deployment reliability by introducing automated testing and observability practices.
+technologies:
+  - TypeScript
+  - Node.js

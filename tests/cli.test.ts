@@ -34,7 +34,7 @@ test('CLI rejects missing required options and unknown options', async () => {
 
   expect(await runCli(['generate'], vi.fn(), error)).toBe(1);
   expect(error).toHaveBeenCalledWith(
-    expect.stringContaining("required option '--input <path>'"),
+    expect.stringContaining("required option '--output <path>'"),
   );
 
   error.mockClear();
