@@ -14,7 +14,7 @@ export const exitCodes = {
   pdfRendering: 5,
   outputWrite: 6,
 } as const;
-const help = `Usage: curriculum-vitae generate --input resume.json --output resume.pdf [--force] [--keep-log]\n\nOptions:\n  --help       Show this help\n  --version    Show the version\n  --force      Overwrite existing outputs\n  --keep-log   Retain the pdflatex compiler log`;
+const help = `Usage: curriculum-vitae generate --input resume.json --output resume.pdf [--template name|path] [--force] [--keep-log]\n\nOptions:\n  --help       Show this help\n  --version    Show the version\n  --template   Template name or .tex path\n  --force      Overwrite existing outputs\n  --keep-log   Retain the pdflatex compiler log`;
 
 export async function runCli(
   args: string[],
@@ -35,6 +35,7 @@ export async function runCli(
   }
   const input = option(args, '--input');
   const output = option(args, '--output');
+  const template = option(args, '--template');
   if (!input || !output || extname(output) !== '.pdf') {
     stderr('Generate requires --input and a .pdf --output path.');
     return exitCodes.invalidInput;
@@ -52,7 +53,7 @@ export async function runCli(
     const result = await generateResume(
       {
         dataReader: new FileSystemResumeDataReader(resolve(input)),
-        latexGenerator: new BuiltInLatexGenerator(),
+        latexGenerator: new BuiltInLatexGenerator(template),
         documentWriter: new FileSystemDocumentWriter(),
         pdfRenderer: new PdfLatexRenderer(),
       },

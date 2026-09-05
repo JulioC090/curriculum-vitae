@@ -1,0 +1,55 @@
+\documentclass[11pt]{article}
+\usepackage[margin=0.75in]{geometry}
+\usepackage[T1]{fontenc}
+\pagestyle{empty}
+\begin{document}
+\begin{center}
+{\LARGE \textbf{ {{personal.name}} }}\\
+{{personal.email}}{{#if personal.phone}} \textbar{} {{personal.phone}}{{/if}}{{#if personal.location}} \textbar{} {{personal.location}}{{/if}}{{#if personal.website}} \textbar{} {{personal.website}}{{/if}}
+\end{center}
+{{#if personal.summary}}
+\section*{Summary}
+{{personal.summary}}
+{{/if}}
+{{#if experience}}
+\section*{Experience}
+{{#each experience}}
+\textbf{ {{role}} } -- {{company}}\hfill {{startDate}}--{{endDate}}\\
+\begin{itemize}
+{{#each description}}
+  \item {{this}}
+{{/each}}
+\end{itemize}
+{{/each}}
+{{/if}}
+{{#if education}}
+\section*{Education}
+{{#each education}}
+\textbf{ {{degree}} } -- {{institution}}\hfill {{startDate}}--{{endDate}}\\
+{{/each}}
+{{/if}}
+{{#if skills}}
+\section*{Skills}
+{{#each skills}}
+\textbf{ {{category}}:} {{#each items}}{{this}}{{#unless @last}}, {{/unless}}{{/each}}\\
+{{/each}}
+{{/if}}
+{{#if projects}}
+\section*{Projects}
+{{#each projects}}
+\textbf{ {{name}} }{{#if url}} ({{url}}){{/if}}\\
+{{#if description}}\begin{itemize}
+{{#each description}}
+  \item {{this}}
+{{/each}}
+\end{itemize}
+{{/if}}{{#if technologies}}\emph{Technologies:} {{#each technologies}}{{this}}{{#unless @last}}, {{/unless}}{{/each}}{{/if}}
+{{/each}}
+{{/if}}
+{{#if certifications}}
+\section*{Certifications}
+{{#each certifications}}
+\textbf{ {{name}} } -- {{issuer}} ({{date}}){{#if url}}, {{url}}{{/if}}{{#if credentialId}}, {{credentialId}}{{/if}}\\
+{{/each}}
+{{/if}}
+\end{document}
