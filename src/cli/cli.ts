@@ -1,6 +1,7 @@
 import { existsSync } from 'node:fs';
 import { readFileSync } from 'node:fs';
 import { extname, resolve } from 'node:path';
+import 'dotenv/config';
 import { Command, CommanderError } from 'commander';
 import { generateResume } from '../core/generate-resume/generate-resume.js';
 import { ResumeError } from '../core/errors.js';
@@ -8,6 +9,10 @@ import { FileSystemResumeDataReader } from '../resume/input/file-system-cv-data-
 import { BuiltInLatexGenerator } from '../generator/latex/latex-generator.js';
 import { FileSystemDocumentWriter } from '../generator/latex/file-system-document-writer.js';
 import { PdfLatexRenderer } from '../render/pdf/pdf-latex-renderer.js';
+import { initResume } from '../core/init-resume/init-resume.js';
+import { PdfParseTextExtractor } from '../resume/input/pdf-text-extractor.js';
+import { OpenRouterResumeModel } from '../llm/openrouter-resume-model.js';
+import { writeResumeData } from '../resume/input/resume-data-writer.js';
 
 export const exitCodes = {
   invalidInput: 2,
@@ -37,6 +42,77 @@ export async function runCli(
       writeOut: (message) => stdout(message.trimEnd()),
       writeErr: (message) => stderr(message.trimEnd()),
     });
+
+  program
+    .command('init')
+    .description('Initialize resume data from a LinkedIn profile PDF')
+    .requiredOption('--linkedin <path>', 'LinkedIn profile PDF path')
+    .option('--output <path>', 'Resume data directory', './data')
+    .option('--force', 'Replace existing resume data')
+    .option(
+      '--allow-large-input',
+      'Continue when extracted PDF text exceeds the safety limit',
+    )
+    .action(
+      async (options: {
+        linkedin: string;
+        output: string;
+        force?: boolean;
+        allowLargeInput?: boolean;
+      }) => {
+        if (extname(options.linkedin).toLowerCase() !== '.pdf') {
+          stderr('Init requires a .pdf --linkedin path.');
+          exitCode = exitCodes.invalidInput;
+          return;
+        }
+        if (!existsSync(resolve(options.linkedin))) {
+          stderr(`LinkedIn PDF does not exist: ${options.linkedin}`);
+          exitCode = exitCodes.inputRead;
+          return;
+        }
+        try {
+          const result = await initResume(
+            {
+              pdfTextExtractor: new PdfParseTextExtractor(),
+              model: new OpenRouterResumeModel(),
+            },
+            {
+              linkedinPath: resolve(options.linkedin),
+              allowLargeInput: options.allowLargeInput ?? false,
+              onLargeInput: (length, limit) =>
+                stderr(
+                  `Warning: extracted PDF text is ${length} characters, above the ${limit} character limit.${options.allowLargeInput ? ' Continuing because --allow-large-input was provided.' : ' Re-run with --allow-large-input to continue.'}`,
+                ),
+            },
+          );
+          const outputPath = resolve(options.output);
+          await writeResumeData(outputPath, result, options.force ?? false, {
+            sources: {
+              linkedin: {
+                imported_at: new Date().toISOString().slice(0, 10),
+                version: 1,
+              },
+            },
+          });
+          stdout(
+            `Resume data: ${outputPath}\nExperience: ${result.experience.length}\nEducation: ${result.education.length}\nProjects: ${result.projects.length}\nCertifications: ${result.certifications.length}\nSkill groups: ${result.skills.length}`,
+          );
+        } catch (error) {
+          const failure =
+            error instanceof ResumeError
+              ? error
+              : new ResumeError('output-write', String(error));
+          stderr(failure.message);
+          exitCode = {
+            'invalid-input': exitCodes.invalidInput,
+            'input-read': exitCodes.inputRead,
+            'latex-generation': exitCodes.latexGeneration,
+            'pdf-rendering': exitCodes.pdfRendering,
+            'output-write': exitCodes.outputWrite,
+          }[failure.category];
+        }
+      },
+    );
 
   program
     .command('generate')

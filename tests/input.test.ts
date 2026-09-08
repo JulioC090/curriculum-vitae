@@ -141,4 +141,65 @@ describe('resume input', () => {
     ).rejects.toThrow(`${directory}/profile.yaml`);
     await rm(directory, { recursive: true, force: true });
   });
+
+  test('reads optional provenance and wrapped skills without exposing metadata', async () => {
+    const directory = await mkdtemp(join(tmpdir(), 'curriculum-vitae-'));
+    await writeFile(
+      join(directory, 'profile.yaml'),
+      [
+        'schemaVersion: 1',
+        'name: Jane Doe',
+        'email: jane@example.com',
+        'sources:',
+        '  linkedin:',
+        '    imported_at: 2026-09-05',
+        '    version: 1',
+        '',
+      ].join('\n'),
+    );
+    await writeFile(
+      join(directory, 'skills.yaml'),
+      [
+        'skills:',
+        '  languages:',
+        '    - TypeScript',
+        'sources:',
+        '  linkedin:',
+        '    imported_at: 2026-09-05',
+        '    version: 1',
+        '',
+      ].join('\n'),
+    );
+    const input = (await new FileSystemResumeDataReader(directory).read()) as {
+      personal: Record<string, unknown>;
+      skills: Array<{ category: string; items: string[] }>;
+    };
+    expect(input.personal).not.toHaveProperty('sources');
+    expect(input.skills).toEqual([
+      { category: 'languages', items: ['TypeScript'] },
+    ]);
+    await rm(directory, { recursive: true, force: true });
+  });
+
+  test('rejects invalid provenance metadata', async () => {
+    const directory = await mkdtemp(join(tmpdir(), 'curriculum-vitae-'));
+    await writeFile(
+      join(directory, 'profile.yaml'),
+      [
+        'schemaVersion: 1',
+        'name: Jane Doe',
+        'email: jane@example.com',
+        'sources:',
+        '  linkedin:',
+        '    imported_at: 2026-09-05',
+        '    version: 1',
+        '    extra: invalid',
+        '',
+      ].join('\n'),
+    );
+    await expect(
+      new FileSystemResumeDataReader(directory).read(),
+    ).rejects.toThrow(`${directory}/profile.yaml`);
+    await rm(directory, { recursive: true, force: true });
+  });
 });

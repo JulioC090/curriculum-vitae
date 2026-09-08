@@ -12,6 +12,15 @@ const period = z
 const achievement = z.object({ id, claim: text }).strict();
 const achievements = z.array(achievement).default([]);
 const technologies = z.array(text).default([]);
+const sourceEntrySchema = z
+  .object({
+    imported_at: z.iso.date(),
+    version: z.number().int(),
+  })
+  .strict();
+
+export const sourcesSchema = z.record(z.string().min(1), sourceEntrySchema);
+export type Sources = z.infer<typeof sourcesSchema>;
 
 export const profileSchema = z
   .object({

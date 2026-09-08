@@ -39,8 +39,12 @@
   },
   "packageManager": "pnpm@11.25.0",
   "dependencies": {
+    "@langchain/core": "^1.2.9",
+    "@langchain/openai": "^1.5.10",
     "commander": "^15.0.0",
+    "dotenv": "^17.4.2",
     "handlebars": "^4.7.9",
+    "pdf-parse": "^2.4.5",
     "yaml": "^2.9.0",
     "zod": "^4.5.1"
   }

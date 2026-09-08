@@ -9,6 +9,7 @@ import {
   experienceItemSchema,
   projectItemSchema,
   profileSchema,
+  sourcesSchema,
 } from './schema.js';
 
 const sections = [
@@ -29,8 +30,10 @@ export class FileSystemResumeDataReader implements ResumeDataReader {
       const profile = await this.readYamlFile(
         join(this.inputPath, 'profile.yaml'),
       );
+      validateSources(profile, join(this.inputPath, 'profile.yaml'));
       const personal = { ...profile };
       delete personal.schemaVersion;
+      delete personal.sources;
       const profileResult = profileSchema.safeParse(personal);
       if (!profileResult.success) {
         throw invalid(
@@ -79,7 +82,15 @@ export class FileSystemResumeDataReader implements ResumeDataReader {
     try {
       const value = await this.readYamlFile(path);
       if (!isRecord(value)) throw invalid(path, 'expected a mapping');
-      return Object.entries(value).map(([category, items]) => {
+      const skills = isRecord(value.skills) ? value.skills : value;
+      if ('skills' in value) {
+        validateSources(value, path);
+        if (
+          Object.keys(value).some((key) => !['skills', 'sources'].includes(key))
+        )
+          throw invalid(path, 'unknown field');
+      }
+      return Object.entries(skills).map(([category, items]) => {
         if (
           !Array.isArray(items) ||
           !items.every((item) => typeof item === 'string' && item.length > 0)
@@ -134,6 +145,8 @@ export class FileSystemResumeDataReader implements ResumeDataReader {
       files.map(async (entry) => {
         const path = join(directory, entry.name);
         const item = await this.readYamlFile(path);
+        validateSources(item, path);
+        delete item.sources;
         if (!isRecord(item) || typeof item.id !== 'string') {
           throw invalid(path, 'item must contain an id');
         }
@@ -219,6 +232,12 @@ function isMissing(error: unknown): boolean {
 
 function invalid(path: string, message: string): ResumeError {
   return new ResumeError('invalid-input', `${path}: ${message}`);
+}
+
+function validateSources(value: Record<string, unknown>, path: string): void {
+  if (!('sources' in value)) return;
+  const result = sourcesSchema.safeParse(value.sources);
+  if (!result.success) throw invalid(path, result.error.message);
 }
 
 function compareItems(

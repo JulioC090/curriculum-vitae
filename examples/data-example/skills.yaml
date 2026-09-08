@@ -13,3 +13,7 @@ practices:
   - Automated testing
   - Code review
   - Continuous delivery
+sources:
+  linkedin:
+    imported_at: 2026-09-05
+    version: 1

@@ -5,7 +5,7 @@ test('CLI reports help and rejects invalid output extensions', async () => {
   const output = vi.fn();
   expect(await runCli(['--help'], output, vi.fn())).toBe(0);
   expect(output).toHaveBeenCalledWith(
-    expect.stringContaining('generate [options]'),
+    expect.stringContaining('init [options]'),
   );
   expect(
     await runCli(
@@ -53,4 +53,13 @@ test('CLI rejects missing required options and unknown options', async () => {
     ),
   ).toBe(1);
   expect(error).toHaveBeenCalledWith(expect.stringContaining('unknown option'));
+});
+
+test('CLI requires a LinkedIn PDF for init', async () => {
+  const error = vi.fn();
+
+  expect(await runCli(['init'], vi.fn(), error)).toBe(1);
+  expect(error).toHaveBeenCalledWith(
+    expect.stringContaining("required option '--linkedin <path>'"),
+  );
 });

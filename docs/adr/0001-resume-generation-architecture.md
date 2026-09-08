@@ -87,6 +87,21 @@ mapper creates separate domain types; Zod schemas are not used as the domain
 model. Email and URL fields use basic Zod format validation. Raw LaTeX is not
 accepted.
 
+Generated files may include a final top-level `sources` mapping. Each source
+entry contains only an ISO date `imported_at` and an integer `version`; source
+names are extensible. The LinkedIn initializer writes the same metadata to
+`profile.yaml`, `skills.yaml`, and every generated item file:
+
+```yaml
+sources:
+  linkedin:
+    imported_at: 2026-09-05
+    version: 1
+```
+
+Provenance is optional for backward compatibility, validated while reading, and
+removed before input is mapped into the domain model.
+
 ## CLI Contract
 
 The primary command is:

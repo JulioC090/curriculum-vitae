@@ -12,3 +12,7 @@ achievements:
 technologies:
   - TypeScript
   - Node.js
+sources:
+  linkedin:
+    imported_at: 2026-09-05
+    version: 1

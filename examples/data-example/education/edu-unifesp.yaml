@@ -5,3 +5,7 @@ field: Computer Science
 period:
   start: '2015-01'
   end: '2018-12'
+sources:
+  linkedin:
+    imported_at: 2026-09-05
+    version: 1

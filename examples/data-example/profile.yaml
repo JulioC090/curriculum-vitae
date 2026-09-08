@@ -5,3 +5,7 @@ phone: '+55 11 99999-1234'
 location: Sao Paulo, Brazil
 website: https://joanasilva.example.com
 summary: Software engineer focused on building reliable products and developer tools.
+sources:
+  linkedin:
+    imported_at: 2026-09-05
+    version: 1

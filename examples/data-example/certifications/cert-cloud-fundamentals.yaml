@@ -4,3 +4,7 @@ issuer: Example Cloud Academy
 issued: '2024-06'
 url: https://example.com/certificates/cloud-fundamentals
 credentialId: CF-2024-001
+sources:
+  linkedin:
+    imported_at: 2026-09-05
+    version: 1
